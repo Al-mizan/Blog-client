@@ -1,13 +1,25 @@
-import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
+import BlogCard from "@/components/modules/homepage/BlogCard";
+
+import { blogService } from "@/services/blog.service";
+import { BlogPost } from "@/types";
 
 export default async function Home() {
-  const session = await authClient.getSession(); // --- IGNORE ---
-  console.log(session);
-  
+  const { data } = await blogService.getBlogPosts(
+    {
+      isFeatured: true,
+    },
+    {
+      cache: "no-store",
+    }
+  );
+
+  console.log(data);
+
   return (
-    <div>
-      <Button variant="outline">Click me</Button>
+    <div className="grid grid-cols-3 max-w-7xl mx-auto px-4 gap-6">
+      {data?.data?.map((post: BlogPost) => (
+        <BlogCard key={post.id} post={post} />
+      ))}
     </div>
   );
 }
