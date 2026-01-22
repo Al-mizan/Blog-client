@@ -51,13 +51,39 @@ export const blogService = {
             }
             else {
                 throw new Error("Failed to fetch posts");
-
             }
         } catch (error) {
             console.error(error);
             return {
                 data: null,
                 error: { message: "Failed to fetch posts" },
+                details: error instanceof Error ? error.message : String(error),
+            }
+        }
+    },
+
+    getBlogPostById: async function (id: string) {
+        try {
+            const url = new URL(`${API_URL}/posts/${id}`);
+            const res = await fetch(url.toString());
+            if (!res.ok) {
+                throw new Error("Failed to fetch post");
+            }
+            const post = await res.json();
+            if (post.success) {
+                return {
+                    data: post.data,
+                    error: null,
+                }
+            }
+            else {
+                throw new Error("Failed to fetch post");
+            }
+        } catch (error) {
+            console.error(error);
+            return {
+                data: null,
+                error: { message: "Failed to fetch post" },
                 details: error instanceof Error ? error.message : String(error),
             }
         }
