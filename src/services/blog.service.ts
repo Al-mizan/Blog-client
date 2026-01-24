@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { cookies } from "next/headers";
 
 const API_URL = env.API_URL;
 
@@ -16,6 +17,12 @@ interface ServiceOption {
     revalidate?: number;
 }
 
+export interface BlogData {
+    title: string;
+    content: string;
+    tags?: string[];
+}
+
 export const blogService = {
     getBlogPosts: async function (
         params?: GetBlogsParams,
@@ -23,24 +30,28 @@ export const blogService = {
     ) {
         try {
             const url = new URL(`${API_URL}/posts`);
-            if(params) {
+            if (params) {
                 Object.entries(params).forEach(([key, value]) => {
-                    if(value !== undefined && value !== null && value !== '') {
+                    if (value !== undefined && value !== null && value !== '') {
                         url.searchParams.append(key, String(value));
                     }
                 });
             }
             const config: RequestInit = {};
-            if(options?.cache) {
+            if (options?.cache) {
                 config.cache = options.cache;
             }
-            if(options?.revalidate !== undefined) {
+            if (options?.revalidate !== undefined) {
                 config.next = { revalidate: options.revalidate };
             }
+            config.next = { ...config.next, tags: ["blogPosts"] }
 
             const res = await fetch(url.toString(), config);
             if (!res.ok) {
-                throw new Error("Failed to fetch posts");
+                return {
+                    data: null,
+                    error: { message: "Failed to fetch posts" },
+                }
             }
             const posts = await res.json();
             if (posts.success) {
@@ -50,7 +61,10 @@ export const blogService = {
                 }
             }
             else {
-                throw new Error("Failed to fetch posts");
+                return {
+                    data: null,
+                    error: { message: "Failed to fetch posts" },
+                }
             }
         } catch (error) {
             console.error(error);
@@ -77,13 +91,54 @@ export const blogService = {
                 }
             }
             else {
-                throw new Error("Failed to fetch post");
+                return {
+                    data: null,
+                    error: { message: "Failed to fetch post" },
+                }
             }
         } catch (error) {
             console.error(error);
             return {
                 data: null,
                 error: { message: "Failed to fetch post" },
+                details: error instanceof Error ? error.message : String(error),
+            }
+        }
+    },
+
+    createBlogPost: async function (blogData: BlogData) {
+        try {
+            const cookiesStore = await cookies();
+
+            const res = await fetch(`${API_URL}/posts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Cookie: cookiesStore.toString()
+                },
+                body: JSON.stringify(blogData),
+            });
+            if (!res.ok) {
+                return {
+                    data: null,
+                    error: { message: "Failed to create blog" },
+                }
+            }
+            const post = await res.json();
+            if (post.error) {
+                return {
+                    data: null,
+                    error: { message: "Failed to create blog" },
+                }
+            }
+            return {
+                data: post.data,
+                error: null,
+            }
+        } catch (error) {
+            return {
+                data: null,
+                error: { message: "Something went wrong!" },
                 details: error instanceof Error ? error.message : String(error),
             }
         }
