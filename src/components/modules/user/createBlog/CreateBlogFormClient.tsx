@@ -69,6 +69,7 @@ export function CreateBlogFormClient() {
                 }
 
                 toast.success("Post Created", { id: toastId });
+                form.reset();
             } catch (err) {
                 toast.error("Something Went Wrong", { id: toastId });
             }
@@ -76,11 +77,11 @@ export function CreateBlogFormClient() {
     });
 
     return (
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full mx-auto max-w-xl">
             <CardHeader>
-                <CardTitle>Create an account</CardTitle>
+                <CardTitle>Create a Blog Post</CardTitle>
                 <CardDescription>
-                    Enter your information below to create your account
+                    Enter your information below to create your blog post
                 </CardDescription>
             </CardHeader>
             <CardContent>

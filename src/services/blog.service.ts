@@ -10,6 +10,8 @@ const API_URL = env.API_URL;
 interface GetBlogsParams {
     isFeatured?: boolean;
     search?: string;
+    page?: string;
+    limit?: string;
 }
 
 interface ServiceOption {

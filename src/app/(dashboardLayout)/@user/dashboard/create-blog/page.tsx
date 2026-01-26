@@ -3,15 +3,18 @@ import { CreateBlogFormServer } from "@/components/modules/user/createBlog/Creat
 import { blogService } from "@/services/blog.service";
 import { BlogPost } from "@/types";
 
+export const dynamic = 'force-dynamic'
+
 export default async function CreatingBlog() {
 
     const { data } = await blogService.getBlogPosts({}, { cache: 'no-store' });
+    // console.log(data);
 
     return (
         <div>
             {/* <CreateBlogFormServer /> */}
             <CreateBlogFormClient />
-            {
+            {/* {
                 data?.data?.map((blog: BlogPost) => (
                     <div key={blog.id}>
                         <h2>{blog.title}</h2>
@@ -20,7 +23,7 @@ export default async function CreatingBlog() {
                         <br />
                     </div>
                 ))
-            }
+            } */}
         </div>
     );
 }
